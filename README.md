@@ -1,6 +1,6 @@
-# Lua / Luau ECS Benchmarks
+# Lua ECS Benchmarks
 
-This repository is dedicated to evaluating and comparing various Entity Component System (ECS) implementations in Lua and Luau. Its primary purpose is exploratory: to provide a controlled environment for running benchmarks and observing performance characteristics across different libraries.
+This repository is dedicated to evaluating and comparing various Entity Component System (ECS) implementations in Lua. Its primary purpose is exploratory: to provide a controlled environment for running benchmarks and observing performance characteristics across different libraries.
 
 ## Scope and Limitations
 
