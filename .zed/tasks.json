@@ -1,0 +1,13 @@
+[
+  {
+    "label": "Run Benchmark",
+    "command": "luau",
+    "args": ["bench/"],
+    "allow_concurrent_runs": true,
+  },
+  {
+    "label": "Update Libs",
+    "command": "python",
+    "args": ["scripts/updater.py"],
+  },
+]

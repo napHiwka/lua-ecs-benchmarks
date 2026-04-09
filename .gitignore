@@ -9,6 +9,9 @@ sourcemap.json
 wally.lock
 wally.toml
 Packages/
+tests/
+bench/libraries/*
+!bench/libraries/.gitkeep
 
 # Profiling
 __pycache__
