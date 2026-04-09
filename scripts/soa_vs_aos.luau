@@ -1,5 +1,5 @@
 -- AoS (Array of Structs)
-local N = 20_000_000
+local N = 20000000
 
 local polyline = table.create(N)
 
@@ -12,7 +12,7 @@ local function testAoS()
 
 	for i = 1, N do
 		local p = polyline[i]
-		sum += p[1] + p[2]
+		sum = sum + p[1] + p[2]
 	end
 
 	return sum
@@ -21,8 +21,6 @@ end
 ---------------------
 
 -- SoA (Structure of Arrays)
-local N = 20_000_000
-
 local polyline = {
 	x = table.create(N),
 	y = table.create(N),
@@ -40,13 +38,16 @@ local function testSoA()
 	local y = polyline.y
 
 	for i = 1, N do
-		sum += x[i] + y[i]
+		sum = sum + x[i] + y[i]
 	end
 
 	return sum
 end
 
 local function bench(name, fn)
+	collectgarbage()
+	collectgarbage()
+
 	local t0 = os.clock()
 	local result = fn()
 	local t1 = os.clock()
