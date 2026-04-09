@@ -12,6 +12,7 @@ Packages/
 tests/
 bench/libraries/*
 !bench/libraries/.gitkeep
+.todo
 
 # Profiling
 __pycache__
