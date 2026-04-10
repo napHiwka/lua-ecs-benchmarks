@@ -2,23 +2,13 @@
 
 This folder contains the benchmark harness used to compare ECS libraries.
 
-## Current Structure
+If a target library requires Luau syntax, run it under a [luau variant](https://github.com/napHiwka/luau-ecs-benchmarks) of this benchmark.
 
-* `bench/init.lua`
-  * benchmark entrypoint
-  * loads adapters and libraries by file path
-* `bench/config.lua`
-  * grouped benchmark settings
-* `bench/shared/workload.lua`
-  * deterministic workload generation from the configured seed
-* `bench/shared/scenarios.lua`
-  * scenario definitions and timing helpers
-* `bench/shared/stats.lua`
-  * aggregated timing statistics across runs
-* `bench/shared/reporter.lua`
-  * console output formatting
-* `bench/libraries/`
-  * folder to store your libraries
+## Run
+
+```bash
+lua bench/init.lua
+```
 
 ## Adapter Contract
 
@@ -99,21 +89,3 @@ Stress workloads remain available and can be disabled with config.
 * Verification is outside the timed region.
 * Query reuse policy is adapter-specific and must be disclosed through the adapter `note`.
 * Wide-query and work-style scenarios are included alongside simpler scenarios so results are not dominated by one synthetic pattern.
-
-## Lua 5.1 Support
-
-The benchmark harness itself is written in Lua 5.1 compatible syntax.
-
-The entrypoint uses `loadfile` for adapters and benchmarked libraries so it can load:
-
-* `.lua`
-* `init.lua`
-* existing library files with other extensions
-
-## Run
-
-```bash
-lua bench/init.lua
-```
-
-If a target library requires Luau syntax, run it under a luau variant of this benchmark.
