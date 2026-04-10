@@ -1,3 +1,4 @@
 {
-  "tiny-ecs": "https://raw.githubusercontent.com/bakpakin/tiny-ecs/refs/heads/master/tiny.lua"
+  "tiny-ecs": "https://raw.githubusercontent.com/bakpakin/tiny-ecs/refs/heads/master/tiny.lua",
+  "evolved": "https://raw.githubusercontent.com/BlackMATov/evolved.lua/refs/heads/main/evolved.lua"
 }
