@@ -8,10 +8,15 @@ local adapterSpecs = {
         libraryPath = "bench/libraries/tiny-ecs/init.lua",
     },
     {
-        name = "tiny-ecs-no-reuse",
-        adapterPath = "bench/adapters/tiny-ecs-no-reuse.lua",
-        libraryPath = "bench/libraries/tiny-ecs/init.lua",
+        name = "evolved",
+        adapterPath = "bench/adapters/evolved.lua",
+        libraryPath = "bench/libraries/evolved/init.lua",
     },
+    -- {
+    --     name = "tiny-ecs-no-reuse",
+    --     adapterPath = "bench/adapters/tiny-ecs-no-reuse.lua",
+    --     libraryPath = "bench/libraries/tiny-ecs/init.lua",
+    -- },
 }
 
 local moduleCache = {}

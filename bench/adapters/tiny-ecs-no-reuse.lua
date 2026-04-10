@@ -1,4 +1,6 @@
 return function(tiny)
+    local unpack = table.unpack or unpack
+
     local Adapter = {
         name = "tiny-ecs-no-reuse",
         note =
@@ -75,15 +77,18 @@ return function(tiny)
             elseif width == 3 then
                 return entity, entity[components[1]], entity[components[2]], entity[components[3]]
             elseif width == 4 then
-                return entity, entity[components[1]], entity[components[2]], entity[components[3]], entity
-                    [components[4]]
+                return entity,
+                    entity[components[1]],
+                    entity[components[2]],
+                    entity[components[3]],
+                    entity[components[4]]
             end
 
             local packed = { entity }
             for componentIndex = 1, width do
                 packed[componentIndex + 1] = entity[components[componentIndex]]
             end
-            return table.unpack(packed)
+            return unpack(packed)
         end
     end
 

@@ -187,8 +187,16 @@ local function consumeQuery(iterator, width)
             if entity == nil then
                 break
             end
-            checksum = checksum + a * 0.02 + b * 0.03 + c * 0.04 + d * 0.05 + e * 0.06 + f * 0.07 + g * 0.08 + h * 0.09 +
-                i * 0.10
+            checksum = checksum
+                + a * 0.02
+                + b * 0.03
+                + c * 0.04
+                + d * 0.05
+                + e * 0.06
+                + f * 0.07
+                + g * 0.08
+                + h * 0.09
+                + i * 0.10
         end
     else
         while true do
@@ -223,90 +231,105 @@ end
 local function runSetExisting(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local updates = resolveOps(state, spec.updateOps)
-    return finalizeScenario(timeScenario("set_existing_component", spec.config.garbageCollection, function()
-        local checksum = 0
-        for index = 1, #updates do
-            local op = updates[index]
-            adapter.set(state.context, op.entity, op.component, op.value)
-            checksum = checksum + op.value
-        end
-        return checksum
-    end), state)
+    return finalizeScenario(
+        timeScenario("set_existing_component", spec.config.garbageCollection, function()
+            local checksum = 0
+            for index = 1, #updates do
+                local op = updates[index]
+                adapter.set(state.context, op.entity, op.component, op.value)
+                checksum = checksum + op.value
+            end
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runArchetypeTransition(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local ops = resolveOps(state, spec.structuralOps)
-    return finalizeScenario(timeScenario("add_remove_component", spec.config.garbageCollection, function()
-        local checksum = 0
-        for index = 1, #ops do
-            local op = ops[index]
-            if adapter.has(state.context, op.entity, op.component) then
-                adapter.remove(state.context, op.entity, op.component)
-                checksum = checksum + op.componentIndex * 0.5
-            else
-                adapter.set(state.context, op.entity, op.component, op.value)
-                checksum = checksum + op.value
+    return finalizeScenario(
+        timeScenario("add_remove_component", spec.config.garbageCollection, function()
+            local checksum = 0
+            for index = 1, #ops do
+                local op = ops[index]
+                if adapter.has(state.context, op.entity, op.component) then
+                    adapter.remove(state.context, op.entity, op.component)
+                    checksum = checksum + op.componentIndex * 0.5
+                else
+                    adapter.set(state.context, op.entity, op.component, op.value)
+                    checksum = checksum + op.value
+                end
             end
-        end
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runRandomReads(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local reads = resolveReadOps(state, spec.randomReadOps)
-    return finalizeScenario(timeScenario("random_component_reads", spec.config.garbageCollection, function()
-        local checksum = 0
-        for index = 1, #reads do
-            local op = reads[index]
-            local value = adapter.get(state.context, op.entity, op.component)
-            if type(value) == "number" then
-                checksum = checksum + value + op.componentIndex * 0.0001
-            else
-                checksum = checksum + op.componentIndex * 0.0001
+    return finalizeScenario(
+        timeScenario("random_component_reads", spec.config.garbageCollection, function()
+            local checksum = 0
+            for index = 1, #reads do
+                local op = reads[index]
+                local value = adapter.get(state.context, op.entity, op.component)
+                if type(value) == "number" then
+                    checksum = checksum + value + op.componentIndex * 0.0001
+                else
+                    checksum = checksum + op.componentIndex * 0.0001
+                end
             end
-        end
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runSingleComponentQuery(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local components = { state.components[spec.hotComponent] }
-    return finalizeScenario(timeScenario("query_1_component", spec.config.garbageCollection, function()
-        local checksum = 0
-        for _ = 1, spec.config.queryWorkloads.queryIterations do
-            local iterator = adapter.query(state.context, components)
-            while true do
-                local entity, value = iterator()
-                if entity == nil then
-                    break
+    return finalizeScenario(
+        timeScenario("query_1_component", spec.config.garbageCollection, function()
+            local checksum = 0
+            for _ = 1, spec.config.queryWorkloads.queryIterations do
+                local iterator = adapter.query(state.context, components)
+                while true do
+                    local entity, value = iterator()
+                    if entity == nil then
+                        break
+                    end
+                    checksum = checksum + value * 1.01
                 end
-                checksum = checksum + value * 1.01
             end
-        end
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runThreeComponentQuery(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local components = resolveComponents(state.components, spec.primaryQueryComponents)
-    return finalizeScenario(timeScenario("query_3_components", spec.config.garbageCollection, function()
-        local checksum = 0
-        for _ = 1, spec.config.queryWorkloads.queryIterations do
-            local iterator = adapter.query(state.context, components)
-            while true do
-                local entity, a, b, c = iterator()
-                if entity == nil then
-                    break
+    return finalizeScenario(
+        timeScenario("query_3_components", spec.config.garbageCollection, function()
+            local checksum = 0
+            for _ = 1, spec.config.queryWorkloads.queryIterations do
+                local iterator = adapter.query(state.context, components)
+                while true do
+                    local entity, a, b, c = iterator()
+                    if entity == nil then
+                        break
+                    end
+                    checksum = checksum + a * 0.5 + b * 0.25 + c * 0.125
                 end
-                checksum = checksum + a * 0.5 + b * 0.25 + c * 0.125
             end
-        end
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runWideComponentQuery(adapter, spec)
@@ -323,13 +346,16 @@ local function runWideComponentQuery(adapter, spec)
     end
     state.entities = entities
 
-    return finalizeScenario(timeScenario("query_wide_components", spec.config.garbageCollection, function()
-        local checksum = 0
-        for _ = 1, spec.config.queryWorkloads.queryIterations do
-            checksum = checksum + consumeQuery(adapter.query(state.context, components), #components)
-        end
-        return checksum
-    end), state)
+    return finalizeScenario(
+        timeScenario("query_wide_components", spec.config.garbageCollection, function()
+            local checksum = 0
+            for _ = 1, spec.config.queryWorkloads.queryIterations do
+                checksum = checksum + consumeQuery(adapter.query(state.context, components), #components)
+            end
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runWorkManyQueries(adapter, spec)
@@ -340,70 +366,79 @@ local function runWorkManyQueries(adapter, spec)
         queries[queryIndex] = resolveComponents(state.components, spec.workQueryDefinitions[queryIndex])
     end
 
-    return finalizeScenario(timeScenario("work_many_queries", spec.config.garbageCollection, function()
-        local checksum = 0
-        local writesPerFrame = spec.config.queryWorkloads.writesPerWorkFrame
-        local updateCount = #updates
+    return finalizeScenario(
+        timeScenario("work_many_queries", spec.config.garbageCollection, function()
+            local checksum = 0
+            local writesPerFrame = spec.config.queryWorkloads.writesPerWorkFrame
+            local updateCount = #updates
 
-        for frameIndex = 1, spec.config.queryWorkloads.workFrameCount do
-            for queryIndex = 1, #queries do
-                checksum = checksum +
-                    consumeQuery(adapter.query(state.context, queries[queryIndex]), #queries[queryIndex])
+            for frameIndex = 1, spec.config.queryWorkloads.workFrameCount do
+                for queryIndex = 1, #queries do
+                    checksum = checksum
+                        + consumeQuery(adapter.query(state.context, queries[queryIndex]), #queries[queryIndex])
+                end
+
+                local baseIndex = ((frameIndex - 1) * writesPerFrame) % updateCount
+                for offset = 1, writesPerFrame do
+                    local op = updates[((baseIndex + offset - 1) % updateCount) + 1]
+                    local value = op.value + frameIndex * 0.0001
+                    adapter.set(state.context, op.entity, op.component, value)
+                    checksum = checksum + value
+                end
             end
 
-            local baseIndex = ((frameIndex - 1) * writesPerFrame) % updateCount
-            for offset = 1, writesPerFrame do
-                local op = updates[((baseIndex + offset - 1) % updateCount) + 1]
-                local value = op.value + frameIndex * 0.0001
-                adapter.set(state.context, op.entity, op.component, value)
-                checksum = checksum + value
-            end
-        end
-
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runStressDataUpdates(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local updates = resolveOps(state, spec.updateOps)
-    return finalizeScenario(timeScenario("stress_data_updates", spec.config.garbageCollection, function()
-        local checksum = 0
-        for passIndex = 1, spec.config.stress.writePasses do
-            for index = 1, #updates do
-                local op = updates[index]
-                local value = op.value + passIndex * 0.0001
-                adapter.set(state.context, op.entity, op.component, value)
-                local current = adapter.get(state.context, op.entity, op.component)
-                if type(current) == "number" then
-                    checksum = checksum + current
+    return finalizeScenario(
+        timeScenario("stress_data_updates", spec.config.garbageCollection, function()
+            local checksum = 0
+            for passIndex = 1, spec.config.stress.writePasses do
+                for index = 1, #updates do
+                    local op = updates[index]
+                    local value = op.value + passIndex * 0.0001
+                    adapter.set(state.context, op.entity, op.component, value)
+                    local current = adapter.get(state.context, op.entity, op.component)
+                    if type(current) == "number" then
+                        checksum = checksum + current
+                    end
                 end
             end
-        end
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runStressStructuralChurn(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local ops = resolveOps(state, spec.structuralOps)
-    return finalizeScenario(timeScenario("stress_structural_churn", spec.config.garbageCollection, function()
-        local checksum = 0
-        for roundIndex = 1, spec.config.stress.structuralPasses do
-            for index = 1, #ops do
-                local op = ops[index]
-                if adapter.has(state.context, op.entity, op.component) then
-                    adapter.remove(state.context, op.entity, op.component)
-                    checksum = checksum + op.componentIndex * 0.01
-                else
-                    local value = op.value + roundIndex * 0.0001
-                    adapter.set(state.context, op.entity, op.component, value)
-                    checksum = checksum + value
+    return finalizeScenario(
+        timeScenario("stress_structural_churn", spec.config.garbageCollection, function()
+            local checksum = 0
+            for roundIndex = 1, spec.config.stress.structuralPasses do
+                for index = 1, #ops do
+                    local op = ops[index]
+                    if adapter.has(state.context, op.entity, op.component) then
+                        adapter.remove(state.context, op.entity, op.component)
+                        checksum = checksum + op.componentIndex * 0.01
+                    else
+                        local value = op.value + roundIndex * 0.0001
+                        adapter.set(state.context, op.entity, op.component, value)
+                        checksum = checksum + value
+                    end
                 end
             end
-        end
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 local function runStressMixedFrame(adapter, spec)
@@ -412,40 +447,43 @@ local function runStressMixedFrame(adapter, spec)
     local ops = resolveOps(state, spec.structuralOps)
     local hotQuery = { state.components[spec.hotComponent] }
     local primaryQuery = resolveComponents(state.components, spec.primaryQueryComponents)
-    return finalizeScenario(timeScenario("stress_mixed_frame", spec.config.garbageCollection, function()
-        local checksum = 0
-        local updateCount = #updates
-        local structuralCount = #ops
+    return finalizeScenario(
+        timeScenario("stress_mixed_frame", spec.config.garbageCollection, function()
+            local checksum = 0
+            local updateCount = #updates
+            local structuralCount = #ops
 
-        for frameIndex = 1, spec.config.stress.frameCount do
-            checksum = checksum + consumeQuery(adapter.query(state.context, primaryQuery), #primaryQuery)
+            for frameIndex = 1, spec.config.stress.frameCount do
+                checksum = checksum + consumeQuery(adapter.query(state.context, primaryQuery), #primaryQuery)
 
-            local updateBase = ((frameIndex - 1) * 200) % updateCount
-            for offset = 1, 200 do
-                local op = updates[((updateBase + offset - 1) % updateCount) + 1]
-                local value = op.value + frameIndex * 0.0001
-                adapter.set(state.context, op.entity, op.component, value)
-                checksum = checksum + value
-            end
-
-            local structuralBase = ((frameIndex - 1) * 120) % structuralCount
-            for offset = 1, 120 do
-                local op = ops[((structuralBase + offset - 1) % structuralCount) + 1]
-                if adapter.has(state.context, op.entity, op.component) then
-                    adapter.remove(state.context, op.entity, op.component)
-                    checksum = checksum + op.componentIndex * 0.01
-                else
-                    local value = op.value + frameIndex * 0.0002
+                local updateBase = ((frameIndex - 1) * 200) % updateCount
+                for offset = 1, 200 do
+                    local op = updates[((updateBase + offset - 1) % updateCount) + 1]
+                    local value = op.value + frameIndex * 0.0001
                     adapter.set(state.context, op.entity, op.component, value)
                     checksum = checksum + value
                 end
+
+                local structuralBase = ((frameIndex - 1) * 120) % structuralCount
+                for offset = 1, 120 do
+                    local op = ops[((structuralBase + offset - 1) % structuralCount) + 1]
+                    if adapter.has(state.context, op.entity, op.component) then
+                        adapter.remove(state.context, op.entity, op.component)
+                        checksum = checksum + op.componentIndex * 0.01
+                    else
+                        local value = op.value + frameIndex * 0.0002
+                        adapter.set(state.context, op.entity, op.component, value)
+                        checksum = checksum + value
+                    end
+                end
+
+                checksum = checksum + consumeQuery(adapter.query(state.context, hotQuery), #hotQuery)
             end
 
-            checksum = checksum + consumeQuery(adapter.query(state.context, hotQuery), #hotQuery)
-        end
-
-        return checksum
-    end), state)
+            return checksum
+        end),
+        state
+    )
 end
 
 function Scenarios.build(spec)

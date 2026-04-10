@@ -67,12 +67,7 @@ function Reporter.printRun(runIndex, runCount, results)
     print(string.format("Run %d/%d", runIndex, runCount))
     for resultIndex = 1, #results do
         local result = results[resultIndex]
-        local line = string.format(
-            "  %-24s %9.4f s  checksum %.2f",
-            result.name,
-            result.seconds,
-            result.checksum
-        )
+        local line = string.format("  %-24s %9.4f s  checksum %.2f", result.name, result.seconds, result.checksum)
         if result.verifyCount > 0 then
             line = line .. string.format("  verify %d / %.3f", result.verifyCount, result.verifySum)
         end
