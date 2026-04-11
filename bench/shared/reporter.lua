@@ -67,18 +67,23 @@ function Reporter.printRun(runIndex, runCount, results)
 	print(string.format("Run %d/%d", runIndex, runCount))
 	for resultIndex = 1, #results do
 		local result = results[resultIndex]
-		local line = string.format("  %-24s %9.4f s  checksum %.2f", result.name, result.seconds, result.checksum)
-		if result.verifyCount > 0 then
-			line = line .. string.format("  verify %d / %.3f", result.verifyCount, result.verifySum)
+		local line = string.format("  %-24s %9.4f s", result.name, result.seconds)
+
+		if runIndex == 1 then
+			line = line .. string.format("  checksum %.2f", result.checksum)
+			if result.verifyCount > 0 then
+				line = line .. string.format("  verify %d / %.3f", result.verifyCount, result.verifySum)
+			end
 		end
+
 		line = line .. string.format("  mem %.1f KB", result.memoryDeltaKB)
 		print(line)
 	end
 	print("")
 end
 
-function Reporter.printAggregate(summary)
-	print("Aggregated Timing")
+function Reporter.printAggregate(summary, adapterName)
+	printSection(string.format("Aggregated Timing (%s)", adapterName))
 	for scenarioIndex = 1, #summary.scenarios do
 		local scenario = summary.scenarios[scenarioIndex]
 		print(

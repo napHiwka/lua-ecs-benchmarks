@@ -72,5 +72,5 @@ for index = 1, #adapters do
 	for runIndex = 1, #report.runs do
 		Reporter.printRun(runIndex, #report.runs, report.runs[runIndex])
 	end
-	Reporter.printAggregate(report.summary)
+	Reporter.printAggregate(report.summary, adapter.name)
 end
