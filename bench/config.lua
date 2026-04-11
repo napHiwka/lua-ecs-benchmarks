@@ -12,8 +12,8 @@ return {
     },
 
     dataset = {
-        entitiesPerRun = 10000,
-        componentsPerWorld = 50,
+        entitiesPerRun = 500,
+        componentsPerWorld = 10,
         baseComponentFill = 0.65,
         primaryQueryComponentFill = 0.45,
         hotComponentFill = 1.0,
