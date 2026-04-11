@@ -20,6 +20,8 @@ To add another ECS, create a file in `bench/adapters` that returns a factory fun
 
 **`note`** - string describing notable implementation details or caveats that affect how results should be interpreted.
 
+**`createEntity(context)`** - allocates and returns an entity with no components.
+
 **`createContext()`** - creates and returns a context table. The context is passed to every other adapter function and should hold whatever the library needs (world, registry, etc). Called once before each scenario.
 
 **`allocComponent(context, index)`** - allocates and returns one component type. `index` is a unique integer per component. Called once per component during setup, outside the timed section.
@@ -44,8 +46,6 @@ Benchmark auto-detects the format on the first call and dispatches accordingly.
 **`makeEntityData(context, components, blueprint)`** - converts a blueprint into a data table used by the spawn loop. If omitted, the default implementation produces `{ [componentHandle] = value, ... }`. Override when your library needs a different representation during bulk entity creation.
 
 **`spawn(context, data)`** - creates one entity from a pre-built data table and returns it. If omitted, the harness falls back to calling `createEntity` followed by `set` for each component. Implement this when your library has a more efficient batch-creation API.
-
-**`createEntity(context)`** - allocates and returns an entity with no components. Required only if `spawn` is omitted.
 
 ### Rules
 
