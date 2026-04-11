@@ -3,22 +3,22 @@ local Reporter = require("bench.shared.reporter")
 
 local adapterSpecs = {
 	{
-		name = "evolved",
+		adapterPath = "bench/adapters/sparse-set.lua",
+		libraryPath = "bench/libraries/_emty/init.lua",
+	},
+	{
 		adapterPath = "bench/adapters/evolved.lua",
 		libraryPath = "bench/libraries/evolved/init.lua",
 	},
 	{
-		name = "ecs-lua",
 		adapterPath = "bench/adapters/ecs-lua.lua",
 		libraryPath = "bench/libraries/ecs-lua/init.lua",
 	},
 	{
-		name = "tiny-ecs-reuse",
 		adapterPath = "bench/adapters/tiny-ecs-reuse.lua",
 		libraryPath = "bench/libraries/tiny-ecs/init.lua",
 	},
 	{
-		name = "tiny-ecs-no-reuse",
 		adapterPath = "bench/adapters/tiny-ecs-no-reuse.lua",
 		libraryPath = "bench/libraries/tiny-ecs/init.lua",
 	},
@@ -46,14 +46,20 @@ for index = 1, #adapterSpecs do
 	local spec = adapterSpecs[index]
 	local ok, result = pcall(function()
 		local adapterFactory = loadModuleFromPath(spec.adapterPath)
-		local library = loadModuleFromPath(spec.libraryPath)
+		local library
+		if spec.libraryPath then
+			library = loadModuleFromPath(spec.libraryPath)
+		else
+			print(string.format("No library path provided for %s, using empty library", spec.adapterPath))
+			library = loadModuleFromPath("bench/libraries/_emty/init.lua")
+		end
 		return adapterFactory(library)
 	end)
 
 	if ok then
 		adapters[#adapters + 1] = result
 	else
-		print(string.format("Skipping %s: %s", spec.name, tostring(result)))
+		print(string.format("Skipping %s: %s", spec.adapterPath, tostring(result)))
 	end
 end
 
@@ -62,6 +68,8 @@ if #adapters == 0 then
 end
 
 Reporter.printConfig(Runner.getConfig())
+
+local allSummaries = {}
 
 for index = 1, #adapters do
 	local adapter = adapters[index]
@@ -73,4 +81,11 @@ for index = 1, #adapters do
 		Reporter.printRun(runIndex, #report.runs, report.runs[runIndex])
 	end
 	Reporter.printAggregate(report.summary, adapter.name)
+
+	report.summary.adapterName = adapter.name
+	allSummaries[#allSummaries + 1] = report.summary
+end
+
+if #adapters > 1 then
+	Reporter.printSummaryTable(allSummaries)
 end
