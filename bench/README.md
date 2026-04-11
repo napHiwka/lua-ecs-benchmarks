@@ -47,10 +47,9 @@ Benchmark auto-detects the format on the first call and dispatches accordingly.
 
 **`spawn(context, data)`** - creates one entity from a pre-built data table and returns it. If omitted, the harness falls back to calling `createEntity` followed by `set` for each component. Implement this when your library has a more efficient batch-creation API.
 
-### Rules
+### Rule
 
-- All component values in the dataset are numbers. Adapters do not need to handle other types.
-- Keep adapters thin.
+> Keep adapters thin.
 
 ## Configuration
 
