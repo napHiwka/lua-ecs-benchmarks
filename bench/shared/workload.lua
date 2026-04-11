@@ -16,7 +16,6 @@ end
 
 local function newRng(seed)
     math.randomseed(math.floor(math.abs(seed)))
-
     return RngMethods
 end
 
@@ -31,8 +30,8 @@ local function componentFill(config, componentIndex)
 end
 
 local function makeBlueprint(rng, config)
-    local components = Compat.createArray()
-    local values = Compat.createArray()
+    local components = {}
+    local values = {}
 
     for componentIndex = 1, config.dataset.componentsPerWorld do
         if rng:nextFloat() <= componentFill(config, componentIndex) then
@@ -57,7 +56,7 @@ local function chooseExistingComponent(rng, blueprint)
 end
 
 local function makeQueryDefinitions(config, rng)
-    local queryDefinitions = Compat.createArray()
+    local queryDefinitions = {}
     local queryCount = config.queryWorkloads.multiQueryCount
     local componentCount = config.dataset.componentsPerWorld
 
@@ -74,7 +73,7 @@ local function makeQueryDefinitions(config, rng)
         end
 
         local used = {}
-        local components = Compat.createArray()
+        local components = {}
         while #components < width do
             local componentIndex
             if #components == 0 and queryIndex <= 8 then
@@ -100,12 +99,12 @@ local Workload = {}
 function Workload.build(config)
     local rng = newRng(config.seed)
 
-    local blueprints = Compat.createArray()
+    local blueprints = {}
     for entityIndex = 1, config.dataset.entitiesPerRun do
         blueprints[entityIndex] = makeBlueprint(rng, config)
     end
 
-    local updateOps = Compat.createArray()
+    local updateOps = {}
     for opIndex = 1, config.mutationWorkloads.writesPerPhase do
         local entityIndex = rng:nextInt(1, config.dataset.entitiesPerRun)
         local componentIndex = chooseExistingComponent(rng, blueprints[entityIndex])
@@ -116,7 +115,7 @@ function Workload.build(config)
         }
     end
 
-    local structuralOps = Compat.createArray()
+    local structuralOps = {}
     for opIndex = 1, config.mutationWorkloads.structuralChangesPerPhase do
         structuralOps[opIndex] = {
             entityIndex = rng:nextInt(1, config.dataset.entitiesPerRun),
@@ -125,7 +124,7 @@ function Workload.build(config)
         }
     end
 
-    local randomReadOps = Compat.createArray()
+    local randomReadOps = {}
     for readIndex = 1, config.queryWorkloads.randomReadCount do
         randomReadOps[readIndex] = {
             entityIndex = rng:nextInt(1, config.dataset.entitiesPerRun),
@@ -133,7 +132,7 @@ function Workload.build(config)
         }
     end
 
-    local wideQueryComponents = Compat.createArray()
+    local wideQueryComponents = {}
     for componentIndex = 1, config.queryWorkloads.wideQueryWidth do
         wideQueryComponents[componentIndex] = componentIndex
     end

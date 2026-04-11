@@ -1,16 +1,6 @@
 local Compat = {}
 
-function Compat.createArray()
-    return {}
-end
-
-function Compat.pack(...)
-    return { n = select("#", ...), ... }
-end
-
-Compat.unpack = table.unpack or unpack
-
-function Compat.copyArray(values)
+local function copyArray(values)
     local copy = {}
     for index = 1, #values do
         copy[index] = values[index]
@@ -18,8 +8,14 @@ function Compat.copyArray(values)
     return copy
 end
 
+Compat.unpack = table.unpack or unpack
+
+function Compat.pack(...)
+    return { n = select("#", ...), ... }
+end
+
 function Compat.sortNumbers(values)
-    local sorted = Compat.copyArray(values)
+    local sorted = copyArray(values)
     table.sort(sorted)
     return sorted
 end

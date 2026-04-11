@@ -12,25 +12,45 @@ lua bench/init.lua
 
 ## Adapter Contract
 
-To add another ECS, create a file in `bench/adapters` that returns a factory:
+To add another ECS, create a file in `bench/adapters` that returns a factory function that receives the library module and returns an adapter table.
 
-* `name`
-* `note`
-* `createContext()`
-* `allocComponent(context, index)`
-* `set(context, entity, component, value)`
-* `get(context, entity, component)`
-* `has(context, entity, component)`
-* `remove(context, entity, component)`
-* `query(context, components)`
+### Required fields
 
-Optional hooks:
+**`name`** - string identifier shown in benchmark output.
 
-* `makeEntityData(context, components, blueprint)`
-* `spawn(context, data)`
-* `createEntity(context)`
+**`note`** - string describing notable implementation details or caveats that affect how results should be interpreted.
 
-The adapter file receives the library module as its argument.
+**`createContext()`** - creates and returns a context table. The context is passed to every other adapter function and should hold whatever the library needs (world, registry, etc). Called once before each scenario.
+
+**`allocComponent(context, index)`** - allocates and returns one component type. `index` is a unique integer per component. Called once per component during setup, outside the timed section.
+
+**`set(context, entity, component, value)`** - assigns `value` (always a number) to `component` on `entity`.
+
+**`get(context, entity, component)`** - returns the current numeric value of `component` on `entity`.
+
+**`has(context, entity, component)`** - returns a truthy value if `entity` currently has `component`, falsy otherwise.
+
+**`remove(context, entity, component)`** - removes `component` from `entity`.
+
+**`query(context, components)`** - `components` is an array of component handles allocated by `allocComponent`. Returns matching entities with their component values in one of two formats:
+
+- ***Iterator*** - a function that on each call returns `entity, v1, v2, ...` for the next matching entity, and `nil` when exhausted. Component values must appear in the same order as `components`.
+- ***Array*** - a table where each element is a row table `{ entity, v1, v2, ... }`. Component values must appear in the same order as `components`, starting at index 2.
+
+Benchmark auto-detects the format on the first call and dispatches accordingly.
+
+### Optional hooks
+
+**`makeEntityData(context, components, blueprint)`** - converts a blueprint into a data table used by the spawn loop. If omitted, the default implementation produces `{ [componentHandle] = value, ... }`. Override when your library needs a different representation during bulk entity creation.
+
+**`spawn(context, data)`** - creates one entity from a pre-built data table and returns it. If omitted, the harness falls back to calling `createEntity` followed by `set` for each component. Implement this when your library has a more efficient batch-creation API.
+
+**`createEntity(context)`** - allocates and returns an entity with no components. Required only if `spawn` is omitted.
+
+### Rules
+
+- All component values in the dataset are numbers. Adapters do not need to handle other types.
+- Keep adapters thin.
 
 ## Configuration
 
@@ -82,10 +102,3 @@ Normal workloads include:
 * a work-style scenario with 24 overlapping queries plus writes per frame
 
 Stress workloads remain available and can be disabled with config.
-
-## Fairness Notes
-
-* All adapters receive the same workload spec derived from one seed.
-* Verification is outside the timed region.
-* Query reuse policy is adapter-specific and must be disclosed through the adapter `note`.
-* Wide-query and work-style scenarios are included alongside simpler scenarios so results are not dominated by one synthetic pattern.

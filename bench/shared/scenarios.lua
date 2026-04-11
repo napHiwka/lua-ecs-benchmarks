@@ -1,4 +1,5 @@
 local Compat = require("bench.shared.compat")
+local Consumer = require("bench.shared.consumer")
 
 local Scenarios = {}
 
@@ -30,13 +31,13 @@ end
 
 local function prepareSpawnData(adapter, spec)
     local context = adapter.createContext()
-    local components = Compat.createArray()
+    local components = {}
     for componentIndex = 1, spec.config.dataset.componentsPerWorld do
         components[componentIndex] = adapter.allocComponent(context, componentIndex)
     end
 
     local makeEntityData = adapter.makeEntityData or defaultMakeEntityData
-    local spawnData = Compat.createArray()
+    local spawnData = {}
     for entityIndex = 1, spec.config.dataset.entitiesPerRun do
         spawnData[entityIndex] = makeEntityData(context, components, spec.blueprints[entityIndex])
     end
@@ -52,7 +53,7 @@ end
 
 local function prepareWorld(adapter, spec)
     local state = prepareSpawnData(adapter, spec)
-    local entities = Compat.createArray()
+    local entities = {}
     for entityIndex = 1, spec.config.dataset.entitiesPerRun do
         entities[entityIndex] = spawnEntity(adapter, state.context, state.spawnData[entityIndex])
     end
@@ -113,7 +114,7 @@ local function finalizeScenario(result, state)
 end
 
 local function resolveOps(state, ops)
-    local resolved = Compat.createArray()
+    local resolved = {}
     for index = 1, #ops do
         local op = ops[index]
         resolved[index] = {
@@ -127,7 +128,7 @@ local function resolveOps(state, ops)
 end
 
 local function resolveReadOps(state, ops)
-    local resolved = Compat.createArray()
+    local resolved = {}
     for index = 1, #ops do
         local op = ops[index]
         resolved[index] = {
@@ -140,76 +141,11 @@ local function resolveReadOps(state, ops)
 end
 
 local function resolveComponents(componentTable, indices)
-    local resolved = Compat.createArray()
+    local resolved = {}
     for index = 1, #indices do
         resolved[index] = componentTable[indices[index]]
     end
     return resolved
-end
-
-local function consumeQuery(iterator, width)
-    local checksum = 0
-    if width == 1 then
-        while true do
-            local entity, a = iterator()
-            if entity == nil then
-                break
-            end
-            checksum = checksum + a * 0.02
-        end
-    elseif width == 2 then
-        while true do
-            local entity, a, b = iterator()
-            if entity == nil then
-                break
-            end
-            checksum = checksum + a * 0.02 + b * 0.03
-        end
-    elseif width == 3 then
-        while true do
-            local entity, a, b, c = iterator()
-            if entity == nil then
-                break
-            end
-            checksum = checksum + a * 0.02 + b * 0.03 + c * 0.04
-        end
-    elseif width == 4 then
-        while true do
-            local entity, a, b, c, d = iterator()
-            if entity == nil then
-                break
-            end
-            checksum = checksum + a * 0.02 + b * 0.03 + c * 0.04 + d * 0.05
-        end
-    elseif width == 9 then
-        while true do
-            local entity, a, b, c, d, e, f, g, h, i = iterator()
-            if entity == nil then
-                break
-            end
-            checksum = checksum
-                + a * 0.02
-                + b * 0.03
-                + c * 0.04
-                + d * 0.05
-                + e * 0.06
-                + f * 0.07
-                + g * 0.08
-                + h * 0.09
-                + i * 0.10
-        end
-    else
-        while true do
-            local packed = Compat.pack(iterator())
-            if packed[1] == nil then
-                break
-            end
-            for valueIndex = 2, packed.n do
-                checksum = checksum + packed[valueIndex] * (0.01 * valueIndex)
-            end
-        end
-    end
-    return checksum
 end
 
 local function runCreateEntities(adapter, spec)
@@ -291,18 +227,12 @@ end
 local function runSingleComponentQuery(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local components = { state.components[spec.hotComponent] }
+    local consume = Consumer.detectConsumer(adapter.query(state.context, components), 1)
     return finalizeScenario(
         timeScenario("query_1_component", spec.config.garbageCollection, function()
             local checksum = 0
             for _ = 1, spec.config.queryWorkloads.queryIterations do
-                local iterator = adapter.query(state.context, components)
-                while true do
-                    local entity, value = iterator()
-                    if entity == nil then
-                        break
-                    end
-                    checksum = checksum + value * 1.01
-                end
+                checksum = checksum + consume(adapter.query(state.context, components)) * 1.01
             end
             return checksum
         end),
@@ -313,18 +243,12 @@ end
 local function runThreeComponentQuery(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local components = resolveComponents(state.components, spec.primaryQueryComponents)
+    local consume = Consumer.detectConsumer(adapter.query(state.context, components), 3)
     return finalizeScenario(
         timeScenario("query_3_components", spec.config.garbageCollection, function()
             local checksum = 0
             for _ = 1, spec.config.queryWorkloads.queryIterations do
-                local iterator = adapter.query(state.context, components)
-                while true do
-                    local entity, a, b, c = iterator()
-                    if entity == nil then
-                        break
-                    end
-                    checksum = checksum + a * 0.5 + b * 0.25 + c * 0.125
-                end
+                checksum = checksum + consume(adapter.query(state.context, components)) * 0.5
             end
             return checksum
         end),
@@ -335,22 +259,22 @@ end
 local function runWideComponentQuery(adapter, spec)
     local state = prepareSpawnData(adapter, spec)
     local components = resolveComponents(state.components, spec.wideQueryComponents)
-    local entities = Compat.createArray()
-
+    local width = #components
+    local entities = {}
     for entityIndex = 1, spec.config.dataset.entitiesPerRun do
         local data = {}
-        for componentIndex = 1, #components do
+        for componentIndex = 1, width do
             data[components[componentIndex]] = entityIndex * 0.0001 + componentIndex * 0.01
         end
         entities[entityIndex] = spawnEntity(adapter, state.context, data)
     end
     state.entities = entities
-
+    local consume = Consumer.detectConsumer(adapter.query(state.context, components), width)
     return finalizeScenario(
         timeScenario("query_wide_components", spec.config.garbageCollection, function()
             local checksum = 0
             for _ = 1, spec.config.queryWorkloads.queryIterations do
-                checksum = checksum + consumeQuery(adapter.query(state.context, components), #components)
+                checksum = checksum + consume(adapter.query(state.context, components))
             end
             return checksum
         end),
@@ -361,23 +285,22 @@ end
 local function runWorkManyQueries(adapter, spec)
     local state = prepareWorld(adapter, spec)
     local updates = resolveOps(state, spec.updateOps)
-    local queries = Compat.createArray()
+    local queries = {}
+    local consumers = {}
     for queryIndex = 1, #spec.workQueryDefinitions do
         queries[queryIndex] = resolveComponents(state.components, spec.workQueryDefinitions[queryIndex])
+        consumers[queryIndex] =
+            Consumer.detectConsumer(adapter.query(state.context, queries[queryIndex]), #queries[queryIndex])
     end
-
     return finalizeScenario(
         timeScenario("work_many_queries", spec.config.garbageCollection, function()
             local checksum = 0
             local writesPerFrame = spec.config.queryWorkloads.writesPerWorkFrame
             local updateCount = #updates
-
             for frameIndex = 1, spec.config.queryWorkloads.workFrameCount do
                 for queryIndex = 1, #queries do
-                    checksum = checksum
-                        + consumeQuery(adapter.query(state.context, queries[queryIndex]), #queries[queryIndex])
+                    checksum = checksum + consumers[queryIndex](adapter.query(state.context, queries[queryIndex]))
                 end
-
                 local baseIndex = ((frameIndex - 1) * writesPerFrame) % updateCount
                 for offset = 1, writesPerFrame do
                     local op = updates[((baseIndex + offset - 1) % updateCount) + 1]
@@ -386,7 +309,6 @@ local function runWorkManyQueries(adapter, spec)
                     checksum = checksum + value
                 end
             end
-
             return checksum
         end),
         state
@@ -447,15 +369,15 @@ local function runStressMixedFrame(adapter, spec)
     local ops = resolveOps(state, spec.structuralOps)
     local hotQuery = { state.components[spec.hotComponent] }
     local primaryQuery = resolveComponents(state.components, spec.primaryQueryComponents)
+    local consumeHot = Consumer.detectConsumer(adapter.query(state.context, hotQuery), #hotQuery)
+    local consumePrimary = Consumer.detectConsumer(adapter.query(state.context, primaryQuery), #primaryQuery)
     return finalizeScenario(
         timeScenario("stress_mixed_frame", spec.config.garbageCollection, function()
             local checksum = 0
             local updateCount = #updates
             local structuralCount = #ops
-
             for frameIndex = 1, spec.config.stress.frameCount do
-                checksum = checksum + consumeQuery(adapter.query(state.context, primaryQuery), #primaryQuery)
-
+                checksum = checksum + consumePrimary(adapter.query(state.context, primaryQuery))
                 local updateBase = ((frameIndex - 1) * 200) % updateCount
                 for offset = 1, 200 do
                     local op = updates[((updateBase + offset - 1) % updateCount) + 1]
@@ -463,7 +385,6 @@ local function runStressMixedFrame(adapter, spec)
                     adapter.set(state.context, op.entity, op.component, value)
                     checksum = checksum + value
                 end
-
                 local structuralBase = ((frameIndex - 1) * 120) % structuralCount
                 for offset = 1, 120 do
                     local op = ops[((structuralBase + offset - 1) % structuralCount) + 1]
@@ -476,10 +397,8 @@ local function runStressMixedFrame(adapter, spec)
                         checksum = checksum + value
                     end
                 end
-
-                checksum = checksum + consumeQuery(adapter.query(state.context, hotQuery), #hotQuery)
+                checksum = checksum + consumeHot(adapter.query(state.context, hotQuery))
             end
-
             return checksum
         end),
         state
