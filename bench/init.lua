@@ -3,6 +3,10 @@ local Reporter = require("bench.shared.reporter")
 
 local adapterSpecs = {
 	{
+		adapterPath = "bench/adapters/table-based.lua",
+		libraryPath = "bench/libraries/_emty/init.lua",
+	},
+	{
 		adapterPath = "bench/adapters/hash-based.lua",
 		libraryPath = "bench/libraries/_emty/init.lua",
 	},
@@ -26,6 +30,11 @@ local adapterSpecs = {
 		adapterPath = "bench/adapters/ecs-lua.lua",
 		libraryPath = "bench/libraries/ecs-lua/init.lua",
 	},
+	-- Manual lib changes required; check adapter before uncommeting
+	-- {
+	-- 	adapterPath = "bench/adapters/rune.lua",
+	-- 	libraryPath = "bench/libraries/rune/init.lua",
+	-- },
 }
 
 local moduleCache = {}
@@ -77,6 +86,7 @@ local allSummaries = {}
 
 for index = 1, #adapters do
 	local adapter = adapters[index]
+	print("Running " .. adapter.name .. "...")
 	local report = Runner.runAdapter(adapter)
 
 	Reporter.printAdapterHeader(adapter, #report.runs)

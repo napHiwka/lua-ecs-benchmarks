@@ -1,5 +1,9 @@
 {
   "tiny-ecs": "https://raw.githubusercontent.com/bakpakin/tiny-ecs/refs/heads/master/tiny.lua",
   "ecs-lua": "https://raw.githubusercontent.com/nidorx/ecs-lua/refs/heads/master/ECS_concat.lua",
-  "evolved": "https://raw.githubusercontent.com/BlackMATov/evolved.lua/refs/heads/main/evolved.lua"
+  "evolved": "https://raw.githubusercontent.com/BlackMATov/evolved.lua/refs/heads/main/evolved.lua",
+  "rune": [
+    "https://raw.githubusercontent.com/jamesstidard/rune/refs/heads/main/rune/ecs.lua",
+    "https://raw.githubusercontent.com/jamesstidard/rune/refs/heads/main/rune/utils.lua"
+  ]
 }
