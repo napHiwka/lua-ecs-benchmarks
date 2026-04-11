@@ -116,4 +116,93 @@ function Reporter.printAggregate(summary, adapterName)
 	print("")
 end
 
+function Reporter.printSummaryTable(allSummaries)
+	print("Summary Table (P50)\n")
+
+	if #allSummaries == 0 then
+		return
+	end
+
+	local MAX_LINE_WIDTH = 120
+
+	local scenarioNames = {}
+	for scenarioIndex = 1, #allSummaries[1].scenarios do
+		scenarioNames[#scenarioNames + 1] = allSummaries[1].scenarios[scenarioIndex].name
+	end
+	scenarioNames[#scenarioNames + 1] = "total"
+
+	local adapterNames = {}
+	for summaryIndex = 1, #allSummaries do
+		adapterNames[#adapterNames + 1] = allSummaries[summaryIndex].adapterName or "Unknown"
+	end
+
+	local maxScenarioWidth = 0
+	for _, name in ipairs(scenarioNames) do
+		maxScenarioWidth = math.max(maxScenarioWidth, #name)
+	end
+
+	local COL_WIDTH = 9 -- "  X.XXXX" = 8 chars + 2 sep = 10, keep it tight
+	local SEP = "  "
+
+	-- Split adapters into groups that fit within MAX_LINE_WIDTH
+	local groups = {}
+	local currentGroup = {}
+	local currentWidth = maxScenarioWidth
+
+	for i, name in ipairs(adapterNames) do
+		local colWidth = #SEP + math.max(COL_WIDTH, #name)
+		if #currentGroup > 0 and currentWidth + colWidth > MAX_LINE_WIDTH then
+			groups[#groups + 1] = currentGroup
+			currentGroup = {}
+			currentWidth = maxScenarioWidth
+		end
+		currentGroup[#currentGroup + 1] = i
+		currentWidth = currentWidth + colWidth
+	end
+	if #currentGroup > 0 then
+		groups[#groups + 1] = currentGroup
+	end
+
+	local function getP50(summary, scenarioName)
+		if scenarioName == "total" then
+			return summary.totalTiming.p50
+		end
+		for _, scenario in ipairs(summary.scenarios) do
+			if scenario.name == scenarioName then
+				return scenario.timing.p50
+			end
+		end
+	end
+
+	local function printGroup(group)
+		-- Header
+		local header = string.format("%-" .. maxScenarioWidth .. "s", "Scenario")
+		for _, idx in ipairs(group) do
+			local colWidth = math.max(COL_WIDTH, #adapterNames[idx])
+			header = header .. SEP .. string.format("%" .. colWidth .. "s", adapterNames[idx])
+		end
+		print(header)
+		print(string.rep("-", #header))
+
+		for _, scenarioName in ipairs(scenarioNames) do
+			local row = string.format("%-" .. maxScenarioWidth .. "s", scenarioName)
+			for _, idx in ipairs(group) do
+				local colWidth = math.max(COL_WIDTH, #adapterNames[idx])
+				local timing = getP50(allSummaries[idx], scenarioName)
+				if timing then
+					row = row .. SEP .. string.format("%" .. colWidth .. ".4f", timing)
+				else
+					row = row .. SEP .. string.format("%" .. colWidth .. "s", "N/A")
+				end
+			end
+			print(row)
+		end
+		print("")
+	end
+
+	for _, group in ipairs(groups) do
+		printGroup(group)
+	end
+end
+
 return Reporter
