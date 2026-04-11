@@ -2,35 +2,22 @@ local Compat = require("bench.shared.compat")
 local Config = require("bench.config")
 
 local RngMethods = {}
-RngMethods.__index = RngMethods
-
 function RngMethods:nextUInt()
-    local state = (self.state * 16807) % 2147483647
-    if state <= 0 then
-        state = 1
-    end
-    self.state = state
-    return state
+    return math.random(1, 2147483647)
 end
 
 function RngMethods:nextFloat()
-    return (self:nextUInt() % 1000000) / 1000000
+    return math.random()
 end
 
 function RngMethods:nextInt(minValue, maxValue)
-    local span = maxValue - minValue + 1
-    return minValue + (self:nextUInt() % span)
+    return math.random(minValue, maxValue)
 end
 
 local function newRng(seed)
-    local initial = math.floor(math.abs(seed)) % 2147483647
-    if initial == 0 then
-        initial = 1
-    end
+    math.randomseed(math.floor(math.abs(seed)))
 
-    return setmetatable({
-        state = initial,
-    }, RngMethods)
+    return RngMethods
 end
 
 local function componentFill(config, componentIndex)
