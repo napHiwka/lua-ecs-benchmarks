@@ -1,3 +1,5 @@
+package.path = "./?.lua;./?/init.lua;" .. package.path
+
 local Runner = require("bench.shared.runner")
 local Reporter = require("bench.shared.reporter")
 
