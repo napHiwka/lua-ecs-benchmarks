@@ -1,7 +1,7 @@
 return function(_)
 	local Adapter = {
 		name = "table-based",
-		note = "Each entity is a plain Lua table. Components are fields on the entity. "
+		note = "each entity is a plain Lua table. Components are fields on the entity. "
 			.. "query() iterates a flat entity list with linear scan."
 			.. "There is a flaw - removing a component does not remove the entity from `context.entities`"
 			.. " means that deleted entities continue to be included in the query scan.",

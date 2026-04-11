@@ -3,7 +3,7 @@ return function(tiny)
 
 	local Adapter = {
 		name = "tiny-ecs-no-reuse",
-		note = "Builds a fresh emulated query system for every query call. This intentionally measures repeated system construction overhead (anti-pattern)",
+		note = "builds a fresh emulated query system for every query call. This intentionally measures repeated system construction overhead (anti-pattern)",
 	}
 
 	function Adapter.createContext()

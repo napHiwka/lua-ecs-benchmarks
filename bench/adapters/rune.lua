@@ -1,7 +1,7 @@
 return function(rune)
 	local Adapter = {
 		name = "rune",
-		note = "Deferred ECS",
+		note = "deferred ECS",
 	}
 
 	-- Manual code changes for propper work in lib folder:

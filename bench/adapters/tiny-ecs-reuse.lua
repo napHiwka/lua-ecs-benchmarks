@@ -3,7 +3,7 @@ return function(tiny)
 
 	local Adapter = {
 		name = "tiny-ecs-reuse",
-		note = "Tiny-ECS does not provide native ECS queries. The adapter reuses emulated systems",
+		note = "tiny-ECS does not provide native ECS queries. The adapter reuses emulated systems",
 	}
 
 	function Adapter.createContext()

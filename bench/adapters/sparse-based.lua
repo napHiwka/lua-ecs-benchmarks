@@ -3,7 +3,7 @@ return function(_)
 
 	local Adapter = {
 		name = "sparse-based",
-		note = "Simple sparse-set ECS using dense/sparse arrays",
+		note = "simple sparse-set ECS using dense/sparse arrays",
 	}
 
 	function Adapter.createContext()

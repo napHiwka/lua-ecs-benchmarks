@@ -3,7 +3,7 @@ return function(evo)
 
 	local Adapter = {
 		name = "evolved",
-		note = "Chunk/archetype ECS",
+		note = "chunk/archetype ECS",
 	}
 
 	function Adapter.createContext()

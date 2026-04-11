@@ -1,7 +1,7 @@
 return function(_)
 	local Adapter = {
 		name = "hash-based",
-		note = "Naive hash ECS using plain Lua tables",
+		note = "naive hash ECS using plain Lua tables",
 	}
 
 	function Adapter.createContext()

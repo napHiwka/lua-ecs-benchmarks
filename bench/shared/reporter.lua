@@ -1,10 +1,5 @@
 local Reporter = {}
 
-local function printSection(title)
-	print(title)
-	print(string.rep("-", #title))
-end
-
 local function printConfigSection(title, lines)
 	print(title)
 	for index = 1, #lines do
@@ -17,8 +12,13 @@ local function formatNumber(value)
 	return string.format("%.4f", value)
 end
 
+function Reporter.printSection(title)
+	print(title)
+	print(string.rep("-", #title))
+end
+
 function Reporter.printConfig(config)
-	printSection("Benchmark Configuration")
+	Reporter.printSection("Benchmark Configuration")
 	printConfigSection("Execution", {
 		string.format("seed: %d", config.seed),
 		string.format("runs per adapter: %d", config.execution.runsPerAdapter),
@@ -55,12 +55,9 @@ function Reporter.printConfig(config)
 end
 
 function Reporter.printAdapterHeader(adapter, runCount)
-	printSection(adapter.name)
 	if adapter.note and adapter.note ~= "" then
-		print("note: " .. adapter.note)
+		print("Note: " .. adapter.note .. "\n")
 	end
-	print(string.format("planned runs: %d", runCount))
-	print("")
 end
 
 function Reporter.printRun(runIndex, runCount, results)
@@ -83,7 +80,7 @@ function Reporter.printRun(runIndex, runCount, results)
 end
 
 function Reporter.printAggregate(summary, adapterName)
-	printSection(string.format("Aggregated Timing (%s)", adapterName))
+	Reporter.printSection(string.format("Aggregated Timing (%s)", adapterName))
 	for scenarioIndex = 1, #summary.scenarios do
 		local scenario = summary.scenarios[scenarioIndex]
 		print(
@@ -123,7 +120,7 @@ function Reporter.printSummaryTable(allSummaries)
 		return
 	end
 
-	local MAX_LINE_WIDTH = 120
+	local MAX_LINE_WIDTH = 110
 
 	local scenarioNames = {}
 	for scenarioIndex = 1, #allSummaries[1].scenarios do

@@ -86,10 +86,9 @@ local allSummaries = {}
 
 for index = 1, #adapters do
 	local adapter = adapters[index]
-	print("Running " .. adapter.name .. "...")
+	Reporter.printSection("Running " .. adapter.name .. "...")
 	local report = Runner.runAdapter(adapter)
-
-	Reporter.printAdapterHeader(adapter, #report.runs)
+	Reporter.printAdapterHeader(adapter)
 
 	for runIndex = 1, #report.runs do
 		Reporter.printRun(runIndex, #report.runs, report.runs[runIndex])
