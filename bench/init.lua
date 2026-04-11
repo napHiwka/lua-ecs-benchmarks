@@ -3,16 +3,12 @@ local Reporter = require("bench.shared.reporter")
 
 local adapterSpecs = {
 	{
-		adapterPath = "bench/adapters/sparse-set.lua",
+		adapterPath = "bench/adapters/hash-based.lua",
 		libraryPath = "bench/libraries/_emty/init.lua",
 	},
 	{
-		adapterPath = "bench/adapters/evolved.lua",
-		libraryPath = "bench/libraries/evolved/init.lua",
-	},
-	{
-		adapterPath = "bench/adapters/ecs-lua.lua",
-		libraryPath = "bench/libraries/ecs-lua/init.lua",
+		adapterPath = "bench/adapters/sparse-based.lua",
+		libraryPath = "bench/libraries/_emty/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/tiny-ecs-reuse.lua",
@@ -21,6 +17,14 @@ local adapterSpecs = {
 	{
 		adapterPath = "bench/adapters/tiny-ecs-no-reuse.lua",
 		libraryPath = "bench/libraries/tiny-ecs/init.lua",
+	},
+	{
+		adapterPath = "bench/adapters/evolved.lua",
+		libraryPath = "bench/libraries/evolved/init.lua",
+	},
+	{
+		adapterPath = "bench/adapters/ecs-lua.lua",
+		libraryPath = "bench/libraries/ecs-lua/init.lua",
 	},
 }
 

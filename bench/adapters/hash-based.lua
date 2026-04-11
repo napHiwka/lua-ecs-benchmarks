@@ -1,7 +1,7 @@
 return function(_)
 	local Adapter = {
-		name = "sparse-set",
-		note = "This adapter implements a manual sparse-set ECS using plain Lua tables",
+		name = "hash-based",
+		note = "Naive hash ECS using plain Lua tables",
 	}
 
 	function Adapter.createContext()
