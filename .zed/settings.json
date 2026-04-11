@@ -1,6 +1,6 @@
 {
   "languages": {
-    "Luau": {
+    "Lua": {
       "formatter": {
         "external": {
           "command": "stylua",
