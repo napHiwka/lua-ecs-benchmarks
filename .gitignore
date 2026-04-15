@@ -12,7 +12,7 @@ Packages/
 tests/
 bench/libraries/*
 !bench/libraries/.gitkeep
-!bench/libraries/_emty
+!bench/libraries/_empty
 .todo
 
 # Profiling

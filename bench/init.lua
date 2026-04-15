@@ -6,15 +6,15 @@ local Reporter = require("bench.shared.reporter")
 local adapterSpecs = {
 	{
 		adapterPath = "bench/adapters/table-based.lua",
-		libraryPath = "bench/libraries/_emty/init.lua",
+		libraryPath = "bench/libraries/_empty/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/hash-based.lua",
-		libraryPath = "bench/libraries/_emty/init.lua",
+		libraryPath = "bench/libraries/_empty/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/sparse-based.lua",
-		libraryPath = "bench/libraries/_emty/init.lua",
+		libraryPath = "bench/libraries/_empty/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/tiny-ecs-reuse.lua",
@@ -66,7 +66,7 @@ for index = 1, #adapterSpecs do
 			library = loadModuleFromPath(spec.libraryPath)
 		else
 			print(string.format("No library path provided for %s, using empty library", spec.adapterPath))
-			library = loadModuleFromPath("bench/libraries/_emty/init.lua")
+			library = loadModuleFromPath("bench/libraries/_empty/init.lua")
 		end
 		return adapterFactory(library)
 	end)
