@@ -8,6 +8,6 @@
   {
     "label": "Update Libs",
     "command": "python",
-    "args": ["bootstrap/bootstrap.py"],
+    "args": ["bootstrap/main.py"],
   },
 ]
