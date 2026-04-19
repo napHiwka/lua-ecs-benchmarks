@@ -2,6 +2,18 @@
 
 This repository is dedicated to evaluating and comparing various Entity Component System (ECS) implementations in Lua. Its primary purpose is exploratory: to provide a controlled environment for running benchmarks and observing performance characteristics across different libraries.
 
+## Quick Start
+
+```bash
+# 1. Download libraries
+python bootstrap/main.py
+
+# 2. Run benchmarks
+lua bench/init.lua
+```
+
+See [`bootstrap/README.md`](bootstrap/README.md) and [`bench/README.md`](bench/README.md) for full details.
+
 ## Scope and Limitations
 
 This project does not include precomputed results, visualizations, or performance summaries. ECS libraries are often under active development, and their performance profiles can change significantly over short periods of time. As a result, any static results would quickly become outdated. Users are expected to run the benchmarks locally to obtain relevant and current data.

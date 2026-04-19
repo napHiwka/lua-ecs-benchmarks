@@ -1,8 +1,8 @@
-# Benchmarks
+# Benchmark
 
-This folder contains the benchmark harness used to compare ECS libraries.
+Benchmark harness for comparing Lua ECS libraries.
 
-If a target library requires Luau syntax, run it under a [luau variant](https://github.com/napHiwka/luau-ecs-benchmarks) of this benchmark.
+> If a library requires Luau syntax, use the [luau variant](https://github.com/napHiwka/luau-ecs-benchmarks) of this benchmark instead.
 
 ## Run
 
@@ -10,94 +10,61 @@ If a target library requires Luau syntax, run it under a [luau variant](https://
 lua bench/init.lua
 ```
 
-## Adapter Contract
-
-To add another ECS, create a file in `bench/adapters` that returns a factory function that receives the library module and returns an adapter table.
-
-### Required fields
-
-**`name`** - string identifier shown in benchmark output.
-
-**`note`** - string describing notable implementation details or caveats that affect how results should be interpreted.
-
-**`createEntity(context)`** - allocates and returns an entity with no components.
-
-**`createContext()`** - creates and returns a context table. The context is passed to every other adapter function and should hold whatever the library needs (world, registry, etc). Called once before each scenario.
-
-**`allocComponent(context, index)`** - allocates and returns one component type. `index` is a unique integer per component. Called once per component during setup, outside the timed section.
-
-**`set(context, entity, component, value)`** - assigns `value` (always a number) to `component` on `entity`.
-
-**`get(context, entity, component)`** - returns the current numeric value of `component` on `entity`.
-
-**`has(context, entity, component)`** - returns a truthy value if `entity` currently has `component`, falsy otherwise.
-
-**`remove(context, entity, component)`** - removes `component` from `entity`.
-
-**`query(context, components)`** - `components` is an array of component handles allocated by `allocComponent`. Returns matching entities with their component values in one of two formats:
-
-- ***Iterator*** - a function that on each call returns `entity, v1, v2, ...` for the next matching entity, and `nil` when exhausted. Component values must appear in the same order as `components`.
-- ***Array*** - a table where each element is a row table `{ entity, v1, v2, ... }`. Component values must appear in the same order as `components`, starting at index 2.
-
-Benchmark auto-detects the format on the first call and dispatches accordingly.
-
-### Optional hooks
-
-**`makeEntityData(context, components, blueprint)`** - converts a blueprint into a data table used by the spawn loop. If omitted, the default implementation produces `{ [componentHandle] = value, ... }`. Override when your library needs a different representation during bulk entity creation.
-
-**`spawn(context, data)`** - creates one entity from a pre-built data table and returns it. If omitted, the harness falls back to calling `createEntity` followed by `set` for each component. Implement this when your library has a more efficient batch-creation API.
-
-### Rule
-
-> Keep adapters thin.
+Results are printed to the console. For each adapter you will see per-run scenario timings, checksums, memory deltas, and aggregated statistics (mean, p50, p90, p95, min, max) across all runs.
 
 ## Configuration
 
-Settings are grouped into sections:
+Edit the config table at the `bench/config.lua`. Key options:
 
-* `execution`
-* `garbageCollection`
-* `dataset`
-* `queryWorkloads`
-* `mutationWorkloads`
-* `stress`
+| Option | Default | Description |
+|---|---|---|
+| `execution.runsPerAdapter` | — | How many times each adapter is run; results are aggregated |
+| `execution.includeStressScenarios` | — | Toggle stress workloads on or off |
+| `garbageCollection.collectBeforeScenario` | — | Force a GC cycle before each scenario |
+| `garbageCollection.collectAfterScenario` | — | Force a GC cycle after each scenario |
 
-Notable options:
-
-* `execution.runsPerAdapter`
-* `execution.includeStressScenarios`
-* `garbageCollection.collectBeforeScenario`
-* `garbageCollection.collectAfterScenario`
-
-## Console Output
-
-For each adapter, the harness prints:
-
-* adapter name
-* adapter note
-* each run's scenario timings, checksums, verification fingerprint, and memory delta
-* aggregated timing statistics across runs
-
-Aggregated timing includes:
-
-* mean
-* p50
-* p90
-* p95
-* min
-* max
+Settings are grouped under: `execution`, `garbageCollection`, `dataset`, `queryWorkloads`, `mutationWorkloads`, `stress`.
 
 ## Workloads
 
-Normal workloads include:
+**Normal**
+- Entity creation
+- Component updates
+- Add/remove structural changes
+- Random component reads
+- 1-, 3-, and wide-component query iteration
+- Work-style scenario: 24 overlapping queries with per-frame writes
 
-* entity creation
-* updating existing components
-* add/remove structural changes
-* random component reads
-* 1-component query iteration
-* 3-component query iteration
-* wide query iteration
-* a work-style scenario with 24 overlapping queries plus writes per frame
+**Stress** — enabled via config; expose pathological cases and theoretical limits, not typical usage.
 
-Stress workloads remain available and can be disabled with config.
+## Adding an Adapter
+
+Create a file in `bench/adapters/` that returns a factory function. The function receives the library module and must return an adapter table.
+
+### Required fields
+
+| Field | Description |
+|---|---|
+| `name` | String identifier shown in output |
+| `note` | Notable caveats or implementation details affecting result interpretation |
+| `createContext()` | Creates and returns a context table (world, registry, etc). Called once before each scenario |
+| `createEntity(context)` | Allocates and returns an entity with no components |
+| `allocComponent(context, index)` | Allocates one component type. `index` is a unique integer. Called once per component during setup, outside the timed section |
+| `set(context, entity, component, value)` | Assigns a numeric `value` to `component` on `entity` |
+| `get(context, entity, component)` | Returns the current numeric value of `component` on `entity` |
+| `has(context, entity, component)` | Returns truthy if `entity` has `component`, falsy otherwise |
+| `remove(context, entity, component)` | Removes `component` from `entity` |
+| `query(context, components)` | Returns matching entities. Accepts two formats (auto-detected on first call): |
+| | **Iterator** — a function returning `entity, v1, v2, ...` per call, `nil` when exhausted |
+| | **Array** — a table of rows `{ entity, v1, v2, ... }` |
+
+Component values in `query` results must appear in the same order as the `components` input array.
+
+### Optional hooks
+
+| Field | Description |
+|---|---|
+| `makeEntityData(context, components, blueprint)` | Converts a blueprint into the data table used by the spawn loop. Override when your library needs a custom representation for bulk creation. Default: `{ [componentHandle] = value, ... }` |
+| `spawn(context, data)` | Creates one entity from a pre-built data table. Override when your library has an efficient batch-creation API. Default: `createEntity` + `set` per component |
+
+> Keep adapters thin.
