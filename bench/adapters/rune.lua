@@ -4,12 +4,6 @@ return function(rune)
 		note = "deferred ECS",
 	}
 
-	-- Manual code changes for propper work in lib folder:
-
-	--[[ In init.lua (library folder) delete first 2 line and paste this:
-	local utils = require("bench.libraries.rune.utils")
-	--]]
-
 	function Adapter.createContext()
 		return { world = rune.World() }
 	end
