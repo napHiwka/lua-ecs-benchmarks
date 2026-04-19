@@ -1,6 +1,4 @@
 return function(tiny)
-	local unpack = table.unpack or unpack
-
 	local Adapter = {
 		name = "tiny-ecs-reuse",
 		note = "tiny-ECS does not provide native ECS queries. The adapter reuses emulated systems",

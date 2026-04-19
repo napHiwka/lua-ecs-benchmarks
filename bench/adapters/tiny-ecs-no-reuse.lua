@@ -1,6 +1,4 @@
 return function(tiny)
-	local unpack = table.unpack or unpack
-
 	local Adapter = {
 		name = "tiny-ecs-no-reuse",
 		note = "builds a fresh emulated query system for every query call. This intentionally measures repeated system construction overhead (anti-pattern)",

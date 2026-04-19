@@ -1,6 +1,4 @@
 return function(_)
-	local unpack = table.unpack or unpack
-
 	local Adapter = {
 		name = "sparse-based",
 		note = "simple sparse-set ECS using dense/sparse arrays",

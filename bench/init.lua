@@ -17,12 +17,20 @@ local adapterSpecs = {
 		libraryPath = "bench/libraries/_empty/init.lua",
 	},
 	{
+		adapterPath = "bench/adapters/lovetoys.lua",
+		libraryPath = "bench/libraries/lovetoys/init.lua",
+	},
+	{
 		adapterPath = "bench/adapters/tiny-ecs-reuse.lua",
 		libraryPath = "bench/libraries/tiny-ecs/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/tiny-ecs-no-reuse.lua",
 		libraryPath = "bench/libraries/tiny-ecs/init.lua",
+	},
+	{
+		adapterPath = "bench/adapters/rune.lua",
+		libraryPath = "bench/libraries/rune/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/evolved.lua",
@@ -32,11 +40,6 @@ local adapterSpecs = {
 		adapterPath = "bench/adapters/ecs-lua.lua",
 		libraryPath = "bench/libraries/ecs-lua/init.lua",
 	},
-	-- Manual lib changes required; check adapter before uncommeting
-	-- {
-	-- 	adapterPath = "bench/adapters/rune.lua",
-	-- 	libraryPath = "bench/libraries/rune/init.lua",
-	-- },
 }
 
 local moduleCache = {}
