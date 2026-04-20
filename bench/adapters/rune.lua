@@ -1,11 +1,23 @@
 return function(rune)
 	local Adapter = {
 		name = "rune",
-		note = "deferred ECS",
+		note = "",
 	}
 
+	local function resolveEntity(context, entity)
+		if type(entity) == "table" then
+			return entity
+		end
+		return context.entities[entity]
+	end
+
 	function Adapter.createContext()
-		return { world = rune.World() }
+		local world = rune.World()
+		return {
+			world = world,
+			entities = world.entities,
+			next_uid = 0,
+		}
 	end
 
 	function Adapter.allocComponent(_context, index)
@@ -13,18 +25,22 @@ return function(rune)
 	end
 
 	function Adapter.createEntity(context)
-		local uid = context.world.add_entity({})
-		context.world:update(0)
+		context.next_uid = context.next_uid + 1
+		local uid = context.next_uid
+		context.entities[uid] = { uid = uid }
 		return uid
 	end
 
 	function Adapter.spawn(context, data)
-		local compList = {}
+		context.next_uid = context.next_uid + 1
+		local uid = context.next_uid
+
+		local entity = { uid = uid }
 		for handle, value in pairs(data) do
-			compList[#compList + 1] = { name = handle.name, value = value }
+			entity[handle.name] = { name = handle.name, value = value }
 		end
-		local uid = context.world.add_entity(compList)
-		context.world:update(0)
+
+		context.entities[uid] = entity
 		return uid
 	end
 
@@ -37,30 +53,36 @@ return function(rune)
 	end
 
 	function Adapter.set(context, entity, component, value)
-		context.world.add_component(entity, { name = component.name, value = value })
+		local e = resolveEntity(context, entity)
+		if not e then
+			return
+		end
+		e[component.name] = { name = component.name, value = value }
 	end
 
 	function Adapter.get(context, entity, component)
-		local e = context.world.entities[entity]
+		local e = resolveEntity(context, entity)
 		if not e then
 			return nil
 		end
 		local c = e[component.name]
-		return c and c.value
+		return c and c.value or nil
 	end
 
 	function Adapter.has(context, entity, component)
-		local e = context.world.entities[entity]
+		local e = resolveEntity(context, entity)
 		return e ~= nil and e[component.name] ~= nil
 	end
 
 	function Adapter.remove(context, entity, component)
-		context.world.remove_component(entity, component)
+		local e = resolveEntity(context, entity)
+		if not e then
+			return
+		end
+		e[component.name] = nil
 	end
 
 	function Adapter.query(context, components)
-		context.world:update(0)
-
 		local width = #components
 		local names = {}
 		for i = 1, width do
@@ -70,7 +92,7 @@ return function(rune)
 		local results = {}
 		local count = 0
 
-		for uid, entity in pairs(context.world.entities) do
+		for uid, entity in pairs(context.entities) do
 			local ok = true
 			for i = 1, width do
 				if entity[names[i]] == nil then
@@ -78,6 +100,7 @@ return function(rune)
 					break
 				end
 			end
+
 			if ok then
 				count = count + 1
 				local row = { uid }

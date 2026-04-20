@@ -1,29 +1,34 @@
 return function(library)
 	local Adapter = {
 		name = "lovetoys",
-		note = "uses Engine + Entity. Queries via engine:getEntitiesWithComponent (single component) "
-			.. "or custom System for multi-component. No native multi-component query outside systems.",
+		note = "",
 	}
+
 	library.initialize({ debug = false, globals = false })
+
+	local registeredClasses = {}
+
 	function Adapter.createContext()
-		local engine = library.Engine()
 		return {
-			engine = engine,
+			engine = library.Engine(),
 			componentClasses = {},
 		}
 	end
 
-	function Adapter.createEntity(context)
-		local entity = library.Entity()
-		return entity
-	end
-
 	function Adapter.allocComponent(context, index)
 		local name = "Comp" .. index
-		if not context.componentClasses[name] then
-			context.componentClasses[name] = library.Component.create(name, { "value" }, { value = 0 })
+		if not registeredClasses[name] then
+			local cls = library.Component.create(name, { "value" }, { value = 0 })
+			registeredClasses[name] = cls
 		end
+		context.componentClasses[name] = registeredClasses[name]
 		return name
+	end
+
+	function Adapter.createEntity(context)
+		local entity = library.Entity()
+		context.engine:addEntity(entity)
+		return entity
 	end
 
 	function Adapter.set(context, entity, component, value)
@@ -33,22 +38,20 @@ return function(library)
 		end
 	end
 
-	function Adapter.get(context, entity, component)
-		return entity:get(component)
+	function Adapter.get(_context, entity, component)
+		local comp = entity:get(component)
+		return comp and comp.value or nil
 	end
 
-	function Adapter.has(context, entity, component)
+	function Adapter.has(_context, entity, component)
 		return entity:has(component)
 	end
 
-	function Adapter.remove(context, entity, component)
+	function Adapter.remove(_context, entity, component)
 		entity:remove(component)
 	end
 
-	function Adapter.addEntityToWorld(context, entity)
-		context.engine:addEntity(entity)
-	end
-
+	-- engine:getEntitiesWithComponent returns { [entity.id] = entity }
 	function Adapter.query(context, components)
 		if #components == 0 then
 			return {}
@@ -57,11 +60,10 @@ return function(library)
 		local primary = components[1]
 		local candidates = context.engine:getEntitiesWithComponent(primary) or {}
 
-		local result = {}
+		local out = {}
+		local count = 0
 
-		for _, entity in ipairs(candidates) do
-			local row = { entity }
-
+		for _, entity in pairs(candidates) do
 			local allMatch = true
 			for i = 2, #components do
 				if not entity:has(components[i]) then
@@ -71,15 +73,17 @@ return function(library)
 			end
 
 			if allMatch then
-				for _, compName in ipairs(components) do
-					local comp = entity:get(compName)
-					table.insert(row, comp and comp.value or nil)
+				count = count + 1
+				local row = { entity }
+				for i = 1, #components do
+					local comp = entity:get(components[i])
+					row[i + 1] = comp and comp.value or nil
 				end
-				table.insert(result, row)
+				out[count] = row
 			end
 		end
 
-		return result
+		return out
 	end
 
 	return Adapter

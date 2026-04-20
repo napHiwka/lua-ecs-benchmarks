@@ -1,7 +1,7 @@
 return function(ecs)
 	local Adapter = {
 		name = "ecs-lua",
-		note = "component-object ECS: each ComponentClass wraps values in { value = ... }",
+		note = "each ComponentClass wraps values in { value = ... }",
 	}
 
 	function Adapter.createContext()
