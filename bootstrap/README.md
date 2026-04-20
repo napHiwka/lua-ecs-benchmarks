@@ -33,7 +33,7 @@ Temporary files are cleaned up automatically on exit.
   // Clone a repo and run the bundler
   "lib-name": {
     "repo": "https://github.com/owner/repo",
-    "ref": "v1.0.0",       // branch or tag; defaults to "main"
+    "ref": "v1.0.0", // branch or tag; defaults to "main"
     "config": "configs/lib-name.json"
   }
 }
