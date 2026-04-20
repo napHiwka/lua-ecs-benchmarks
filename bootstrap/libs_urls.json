@@ -11,5 +11,10 @@
     "repo": "https://github.com/lovetoys/lovetoys",
     "ref": "master",
     "config": "configs/lovetoys.lua"
+  },
+  "concord": {
+    "repo": "https://github.com/Keyslam-Group/Concord",
+    "ref": "main",
+    "config": "configs/concord.lua"
   }
 }

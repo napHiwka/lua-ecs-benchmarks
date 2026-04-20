@@ -17,6 +17,10 @@ local adapterSpecs = {
 		libraryPath = "bench/libraries/_empty/init.lua",
 	},
 	{
+		adapterPath = "bench/adapters/concord.lua",
+		libraryPath = "bench/libraries/concord/init.lua",
+	},
+	{
 		adapterPath = "bench/adapters/lovetoys.lua",
 		libraryPath = "bench/libraries/lovetoys/init.lua",
 	},
