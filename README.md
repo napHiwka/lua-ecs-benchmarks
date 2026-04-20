@@ -14,6 +14,15 @@ lua bench/init.lua
 
 See [`bootstrap/README.md`](bootstrap/README.md) and [`bench/README.md`](bench/README.md) for full details.
 
+### Included libraries
+
+* concord
+* ecs-lua
+* evolved
+* lovetoys
+* rune
+* tiny-ecs
+
 ## Scope and Limitations
 
 This project does not include precomputed results, visualizations, or performance summaries. ECS libraries are often under active development, and their performance profiles can change significantly over short periods of time. As a result, any static results would quickly become outdated. Users are expected to run the benchmarks locally to obtain relevant and current data.
