@@ -1,4 +1,3 @@
-local Compat = require("bench.shared.compat")
 local Consumer = require("bench.shared.consumer")
 
 local Scenarios = {}

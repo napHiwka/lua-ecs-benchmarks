@@ -1,4 +1,3 @@
-local Compat = require("bench.shared.compat")
 local Config = require("bench.config")
 
 local RngMethods = {}
