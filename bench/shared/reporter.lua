@@ -138,7 +138,7 @@ function Reporter.printSummaryTable(allSummaries)
 		maxScenarioWidth = math.max(maxScenarioWidth, #name)
 	end
 
-	local COL_WIDTH = 9 -- "  X.XXXX" = 8 chars + 2 sep = 10, keep it tight
+	local COL_WIDTH = 9 -- "X.XXXX" = 8 chars + 2 sep = 10, keep it tight
 	local SEP = "  "
 
 	-- Split adapters into groups that fit within MAX_LINE_WIDTH

@@ -35,7 +35,7 @@ Settings are grouped under: `execution`, `garbageCollection`, `dataset`, `queryW
 - 1-, 3-, and wide-component query iteration
 - Work-style scenario: 24 overlapping queries with per-frame writes
 
-**Stress** — enabled via config; expose pathological cases and theoretical limits, not typical usage.
+**Stress** can be enabled via config; expose pathological cases and theoretical limits, not typical usage.
 
 ## Adding an Adapter
 

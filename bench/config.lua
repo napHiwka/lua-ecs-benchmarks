@@ -3,7 +3,7 @@ return {
 
 	execution = {
 		runsPerAdapter = 5,
-		includeStressScenarios = true,
+		includeStressScenarios = false,
 	},
 
 	garbageCollection = {
@@ -12,8 +12,8 @@ return {
 	},
 
 	dataset = {
-		entitiesPerRun = 500,
-		componentsPerWorld = 10,
+		entitiesPerRun = 700,
+		componentsPerWorld = 20,
 		baseComponentFill = 0.65,
 		primaryQueryComponentFill = 0.45,
 		hotComponentFill = 1.0,

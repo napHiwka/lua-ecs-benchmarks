@@ -21,6 +21,10 @@ local adapterSpecs = {
 		libraryPath = "bench/libraries/concord/init.lua",
 	},
 	{
+		adapterPath = "bench/adapters/rune.lua",
+		libraryPath = "bench/libraries/rune/init.lua",
+	},
+	{
 		adapterPath = "bench/adapters/lovetoys.lua",
 		libraryPath = "bench/libraries/lovetoys/init.lua",
 	},
@@ -31,10 +35,6 @@ local adapterSpecs = {
 	{
 		adapterPath = "bench/adapters/tiny-ecs-no-reuse.lua",
 		libraryPath = "bench/libraries/tiny-ecs/init.lua",
-	},
-	{
-		adapterPath = "bench/adapters/rune.lua",
-		libraryPath = "bench/libraries/rune/init.lua",
 	},
 	{
 		adapterPath = "bench/adapters/evolved.lua",
