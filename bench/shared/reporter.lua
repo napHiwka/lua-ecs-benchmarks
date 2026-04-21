@@ -54,7 +54,7 @@ function Reporter.printConfig(config)
 	})
 end
 
-function Reporter.printAdapterHeader(adapter, runCount)
+function Reporter.printAdapterHeader(adapter)
 	if adapter.note and adapter.note ~= "" then
 		print("Note: " .. adapter.note .. "\n")
 	end
