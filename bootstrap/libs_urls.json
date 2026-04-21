@@ -2,6 +2,7 @@
   "tiny-ecs": "https://raw.githubusercontent.com/bakpakin/tiny-ecs/refs/heads/master/tiny.lua",
   "ecs-lua": "https://raw.githubusercontent.com/nidorx/ecs-lua/refs/heads/master/ECS_concat.lua",
   "evolved": "https://raw.githubusercontent.com/BlackMATov/evolved.lua/refs/heads/main/evolved.lua",
+  "alecs": "https://raw.githubusercontent.com/pcornier/Alecs/refs/heads/master/Alecs.lua",
   "rune": {
     "repo": "https://github.com/jamesstidard/rune",
     "ref": "main",
@@ -16,5 +17,10 @@
     "repo": "https://github.com/Keyslam-Group/Concord",
     "ref": "main",
     "config": "configs/concord.lua"
+  },
+  "ecs-lib": {
+    "repo": "https://github.com/liuhaopen/ecs.git",
+    "ref": "master",
+    "config": "configs/ecs-lib.lua"
   }
 }

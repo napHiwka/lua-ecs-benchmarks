@@ -25,6 +25,10 @@ local adapterSpecs = {
 		libraryPath = "bench/libraries/rune/init.lua",
 	},
 	{
+		adapterPath = "bench/adapters/alecs.lua",
+		libraryPath = "bench/libraries/alecs/init.lua",
+	},
+	{
 		adapterPath = "bench/adapters/lovetoys.lua",
 		libraryPath = "bench/libraries/lovetoys/init.lua",
 	},
@@ -43,6 +47,10 @@ local adapterSpecs = {
 	{
 		adapterPath = "bench/adapters/ecs-lua.lua",
 		libraryPath = "bench/libraries/ecs-lua/init.lua",
+	},
+	{
+		adapterPath = "bench/adapters/ecs-lib.lua",
+		libraryPath = "bench/libraries/ecs-lib/init.lua",
 	},
 }
 
