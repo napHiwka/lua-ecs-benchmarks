@@ -47,6 +47,7 @@ local function consumeArray(results, width)
 				if c then
 					checksum = checksum + c * 0.04
 				end
+			else
 				for componentIndex = 1, width do
 					local value = row[componentIndex + 1]
 					if value then
