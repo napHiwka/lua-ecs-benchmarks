@@ -24,7 +24,7 @@ return function(_)
 		}
 	end
 
-	function Adapter.set(context, entity, component, value)
+	function Adapter.set(_context, entity, component, value)
 		local idx = component.sparse[entity]
 
 		if idx ~= nil then
@@ -85,22 +85,20 @@ return function(_)
 			end
 		end
 
-		-- separate primary from others to skip it in the check loop
-		-- and to know each component's row position upfront
-		local others = {}
+		local othersSparse = {}
+		local othersData = {}
+		local othersRowPos = {}
+		local othersCount = 0
 		for i = 1, width do
 			if i ~= primaryIndex then
-				others[#others + 1] = { comp = components[i], rowPos = i + 1 }
+				othersCount = othersCount + 1
+				othersSparse[othersCount] = components[i].sparse
+				othersData[othersCount] = components[i].data
+				othersRowPos[othersCount] = i + 1
 			end
 		end
-		local othersCount = #others
 
-		-- reusable index cache to avoids double sparse-lookup
 		local idxCache = {}
-		for i = 1, othersCount do
-			idxCache[i] = 0
-		end
-
 		local results = {}
 		local count = 0
 		local primaryDense = primary.dense
@@ -112,7 +110,7 @@ return function(_)
 
 			local ok = true
 			for i = 1, othersCount do
-				local idx = others[i].comp.sparse[entity]
+				local idx = othersSparse[i][entity]
 				if idx == nil then
 					ok = false
 					break
@@ -125,8 +123,7 @@ return function(_)
 				local row = { entity }
 				row[primaryRowPos] = primaryData[pos]
 				for i = 1, othersCount do
-					local o = others[i]
-					row[o.rowPos] = o.comp.data[idxCache[i]]
+					row[othersRowPos[i]] = othersData[i][idxCache[i]]
 				end
 				results[count] = row
 			end

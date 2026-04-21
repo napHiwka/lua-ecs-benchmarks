@@ -2,18 +2,21 @@ return function(_)
 	local Adapter = {
 		name = "table-based",
 		note = "each entity is a plain Lua table. Components are fields on the entity. "
-			.. "query() iterates a flat entity list with linear scan."
-			.. "There is a flaw - removing a component does not remove the entity from `context.entities`"
-			.. " means that deleted entities continue to be included in the query scan.",
+			.. "query() iterates a flat entity list with linear scan. "
+			.. "Entities with no remaining components are removed from the list via swap-with-last.",
 	}
 
 	function Adapter.createContext()
-		return { entities = {} }
+		return { entities = {}, count = 0 }
 	end
 
 	function Adapter.createEntity(context)
-		local entity = {}
-		context.entities[#context.entities + 1] = entity
+		local c = context.count + 1
+		context.count = c
+		-- _i stores the position in entities for O(1) deletion
+		-- _n counts the active components to determine when the entity has become empty
+		local entity = { _i = c, _n = 0 }
+		context.entities[c] = entity
 		return entity
 	end
 
@@ -22,6 +25,9 @@ return function(_)
 	end
 
 	function Adapter.set(_context, entity, component, value)
+		if entity[component] == nil then
+			entity._n = entity._n + 1
+		end
 		entity[component] = value
 	end
 
@@ -33,8 +39,26 @@ return function(_)
 		return entity[component] ~= nil
 	end
 
-	function Adapter.remove(_context, entity, component)
+	function Adapter.remove(context, entity, component)
+		if entity[component] == nil then
+			return
+		end
 		entity[component] = nil
+		local n = entity._n - 1
+		entity._n = n
+		-- the entity is empty; remove it from the list so it isn't scanned unnecessarily
+		if n == 0 then
+			local entities = context.entities
+			local i = entity._i
+			local last = context.count
+			if i ~= last then
+				local moved = entities[last]
+				entities[i] = moved
+				moved._i = i
+			end
+			entities[last] = nil
+			context.count = last - 1
+		end
 	end
 
 	function Adapter.query(context, components)
@@ -43,7 +67,7 @@ return function(_)
 		local results = {}
 		local count = 0
 
-		for i = 1, #entities do
+		for i = 1, context.count do
 			local entity = entities[i]
 			local ok = true
 			for j = 1, width do
